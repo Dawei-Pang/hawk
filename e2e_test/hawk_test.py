@@ -111,8 +111,9 @@ def main():
 
     # Get version from /etc/os-release
     test_version = ssh.ssh.exec_command("grep VERSION= /etc/os-release")[1].read().decode().strip().split("=")[1].strip('"')
-    pacemaker_version = ssh.ssh.exec_command("rpm -qi pacemaker")
-    print(pacemaker_version)
+    pacemaker_version = ssh.ssh.exec_command("rpm -q --queryformat '%{VERSION}' pacemaker")[1].read().decode().strip()
+    if "is not installed" in pacemaker_version: pacemaker_version = "0"
+    print("pacemaker_version="%pacemaker_version)
 
     # Create driver instance
     browser = HawkTestDriver(addr=args.host, port=args.port,
@@ -154,7 +155,10 @@ def main():
     browser.test('test_remove_clone', results, clone)
     browser.test('test_add_group', results, group)
     browser.test('test_remove_group', results, group)
-    browser.test('test_check_cluster_configuration', results, ssh)
+    if pacemaker_version < "2.1.8":
+        results.set_test_status('test_check_cluster_configuration', 'skipped')
+    else:
+        browser.test('test_check_cluster_configuration', results, ssh)
     browser.test('test_click_around_edit_conf', results)
     if args.slave:
         browser.addr = args.slave
