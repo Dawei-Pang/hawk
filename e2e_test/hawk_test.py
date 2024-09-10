@@ -113,7 +113,7 @@ def main():
     test_version = ssh.ssh.exec_command("grep VERSION= /etc/os-release")[1].read().decode().strip().split("=")[1].strip('"')
     pacemaker_version = ssh.ssh.exec_command("rpm -q --queryformat '%{VERSION}' pacemaker")[1].read().decode().strip()
     if "is not installed" in pacemaker_version: pacemaker_version = "0"
-    print("pacemaker_version="%pacemaker_version)
+    print("pacemaker_version=%s"%pacemaker_version)
 
     # Create driver instance
     browser = HawkTestDriver(addr=args.host, port=args.port,
