@@ -215,7 +215,7 @@ class HawkTestDriver:
         time.sleep(self.timeout_scale)
         return True
 
-    def find_element(self, bywhat, texto, tout=60):
+    def find_element(self, bywhat, texto, tout=60, clickable=False):
         '''
         Function to find element
         Args:
@@ -230,6 +230,9 @@ class HawkTestDriver:
         try:
             elem = WebDriverWait(self.driver,
                                  tout).until(EC.presence_of_element_located((bywhat, texto)))
+            if clickable:
+                elem = WebDriverWait(self.driver,
+                                 tout).until(EC.presence_of_element_to_be_clickable(elem))
         except TimeoutException:
             print(f"INFO: {tout} seconds timeout while looking for element [{texto}] by [{bywhat}]")
             return False
@@ -492,10 +495,11 @@ class HawkTestDriver:
             return False
         elem.click()
         time.sleep(BIG_TIMEOUT)
-        elem = self.find_element(By.CLASS_NAME, 'close')
+        elem = self.find_element(By.CLASS_NAME, 'close', clickable=True)
         if not elem:
             print("ERROR: Cannot find cluster remove button")
             return False
+        # ISSUE
         elem.click()
         time.sleep(2 * self.timeout_scale)
         elem = self.find_element(By.CLASS_NAME, 'cancel')
