@@ -232,7 +232,7 @@ class HawkTestDriver:
                                  tout).until(EC.presence_of_element_located((bywhat, texto)))
             if clickable:
                 elem = WebDriverWait(self.driver,
-                                 tout).until(EC.presence_of_element_to_be_clickable(elem))
+                                 tout).until(EC.element_to_be_clickable(elem))
         except TimeoutException:
             print(f"INFO: {tout} seconds timeout while looking for element [{texto}] by [{bywhat}]")
             return False
