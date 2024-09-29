@@ -500,9 +500,13 @@ class HawkTestDriver:
         if not elem:
             print("ERROR: Cannot find cluster remove button")
             return False
-        time.sleep(999999)
         # ISSUE
-        elem.click()
+        try:
+            elem.click()
+        except WebDriverException:
+            print("ERROR: !!!! ISSUE")
+            time.sleep(999999)
+
         time.sleep(2 * self.timeout_scale)
         elem = self.find_element(By.CLASS_NAME, 'cancel')
         if not elem:
