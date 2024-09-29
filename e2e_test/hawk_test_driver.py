@@ -495,11 +495,12 @@ class HawkTestDriver:
             return False
         elem.click()
         time.sleep(BIG_TIMEOUT)
-        elem = self.find_element(By.CLASS_NAME, 'close', clickable=True)
-        time.sleep(90000)
+        #elem = self.find_element(By.CLASS_NAME, 'close', clickable=True)
+        elem = self.find_element(By.CLASS_NAME, 'close')
         if not elem:
             print("ERROR: Cannot find cluster remove button")
             return False
+        time.sleep(999999)
         # ISSUE
         elem.click()
         time.sleep(2 * self.timeout_scale)
