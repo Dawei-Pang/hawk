@@ -229,6 +229,7 @@ class HawkTestDriver:
         '''
         try:
             elem = WebDriverWait(self.driver,
+                                 tout).until(EC.presence_of_element_located((bywhat, texto)))
         except TimeoutException:
             print(f"INFO: {tout} seconds timeout while looking for element [{texto}] by [{bywhat}]")
             return False
