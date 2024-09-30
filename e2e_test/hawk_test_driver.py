@@ -327,6 +327,7 @@ class HawkTestDriver:
         print("TEST: test_remove_cluster")
         self.click_on('Dashboard')
         self.check_and_click_by_xpath("Click on Dashboard", [Xpath.HREF_DASHBOARD])
+        print("current A len = %s"%len(self.driver.window_handles))
         elem = self.find_element(By.PARTIAL_LINK_TEXT, cluster)
         if not elem:
             print(f"ERROR: Couldn't find cluster [{cluster}]. Cannot remove")
@@ -337,7 +338,14 @@ class HawkTestDriver:
         if not elem:
             print("ERROR: Cannot find cluster remove button")
             return False
-        elem.click()
+        # ISSUE
+        try:
+            elem.click()
+        except Exception as e:
+            print(e)
+        print("current B len = %s"%len(self.driver.window_handles))
+        time.sleep(86400)
+
         time.sleep(2 * self.timeout_scale)
         elem = self.find_element(By.CLASS_NAME, 'cancel')
         if not elem:
