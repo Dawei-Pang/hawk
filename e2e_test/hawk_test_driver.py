@@ -215,7 +215,7 @@ class HawkTestDriver:
         time.sleep(self.timeout_scale)
         return True
 
-    def find_element(self, bywhat, texto, tout=60, clickable=False):
+    def find_element(self, bywhat, texto, tout=60):
         '''
         Function to find element
         Args:
@@ -229,10 +229,6 @@ class HawkTestDriver:
         '''
         try:
             elem = WebDriverWait(self.driver,
-                                 tout).until(EC.presence_of_element_located((bywhat, texto)))
-            if clickable:
-                elem = WebDriverWait(self.driver,
-                                 tout).until(EC.element_to_be_clickable((bywhat, texto)))
         except TimeoutException:
             print(f"INFO: {tout} seconds timeout while looking for element [{texto}] by [{bywhat}]")
             return False
@@ -493,9 +489,17 @@ class HawkTestDriver:
         if not elem:
             print(f"ERROR: Couldn't find cluster [{cluster}]. Cannot remove")
             return False
+        # Record original_window
+        original_window = self.driver.current_window_handle
+        original_window_len = len(self.driver.window_handles)
+        print("driver.window_handles len = %s"%original_window_len)
         elem.click()
         time.sleep(BIG_TIMEOUT)
-        #elem = self.find_element(By.CLASS_NAME, 'close', clickable=True)
+        wait = WebDriverWait(self.driver, 10)
+        wait.until(EC.number_of_windows_to_be(original_window_len+1))
+        for window_handle in self.driver.window_handles:
+            if window_handle != original_window:
+                self.driver.switch_to.window(window_handle)
         elem = self.find_element(By.CLASS_NAME, 'close')
         if not elem:
             print("ERROR: Cannot find cluster remove button")
