@@ -7,6 +7,7 @@ import time
 from distutils.version import LooseVersion as Version
 
 from selenium import webdriver
+from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException, WebDriverException
@@ -341,11 +342,12 @@ class HawkTestDriver:
         # ISSUE
         try:
             #self.driver.execute_script("document.body.style.zoom='zoom 80%'")
+            print("Element is visible? " + str(elem.is_displayed()))
             elem.click()
         except Exception as e:
             print(e)
             print("current B len = %s"%len(self.driver.window_handles))
-            time.sleep(86400)
+            ActionChains(self.driver).move_to_element(elem).click(elem).perform()
 
         time.sleep(2 * self.timeout_scale)
         elem = self.find_element(By.CLASS_NAME, 'cancel')
