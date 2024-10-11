@@ -340,12 +340,12 @@ class HawkTestDriver:
             return False
         # ISSUE
         try:
-            self.driver.execute_script("document.body.style.zoom='zoom 80%'")
+            #self.driver.execute_script("document.body.style.zoom='zoom 80%'")
             elem.click()
         except Exception as e:
             print(e)
-        print("current B len = %s"%len(self.driver.window_handles))
-        time.sleep(86400)
+            print("current B len = %s"%len(self.driver.window_handles))
+            time.sleep(86400)
 
         time.sleep(2 * self.timeout_scale)
         elem = self.find_element(By.CLASS_NAME, 'cancel')
