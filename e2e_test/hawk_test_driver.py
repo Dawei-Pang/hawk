@@ -340,6 +340,7 @@ class HawkTestDriver:
             return False
         # ISSUE
         try:
+            self.driver.execute_script("document.body.style.zoom='zoom 80%'")
             elem.click()
         except Exception as e:
             print(e)
