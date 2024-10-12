@@ -340,14 +340,17 @@ class HawkTestDriver:
             print("ERROR: Cannot find cluster remove button")
             return False
         # ISSUE
-        try:
-            #self.driver.execute_script("document.body.style.zoom='zoom 80%'")
-            print("Element is visible? " + str(elem.is_displayed()))
-            elem.click()
-        except Exception as e:
-            print(e)
-            print("current B len = %s"%len(self.driver.window_handles))
-            ActionChains(self.driver).move_to_element(elem).click(elem).perform()
+        print("Element is visible? " + str(elem.is_displayed()))
+        if not elem.is_displayed():
+            print("workaround to set zoom 80%")
+            self.driver.execute_script("document.body.style.zoom='zoom 80%'")
+        #try:
+        print("Element is visible? " + str(elem.is_displayed()))
+        elem.click()
+        #except Exception as e:
+        #    print(e)
+        #    print("current B len = %s"%len(self.driver.window_handles))
+        #    ActionChains(self.driver).move_to_element(elem).click(elem).perform()
 
         time.sleep(2 * self.timeout_scale)
         elem = self.find_element(By.CLASS_NAME, 'cancel')
