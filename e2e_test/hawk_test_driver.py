@@ -342,8 +342,8 @@ class HawkTestDriver:
         # ISSUE
         print("Element is visible? " + str(elem.is_displayed()))
         if not elem.is_displayed():
-            print("workaround to set zoom 80%")
-            self.driver.execute_script("document.body.style.zoom='zoom 80%'")
+            print("scrollIntoView")
+            self.driver.execute_script("arguments[0].scrollIntoView(true);", elem)
         #try:
         print("Element is visible? " + str(elem.is_displayed()))
         elem.click()
