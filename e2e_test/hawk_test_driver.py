@@ -329,28 +329,36 @@ class HawkTestDriver:
         self.click_on('Dashboard')
         self.check_and_click_by_xpath("Click on Dashboard", [Xpath.HREF_DASHBOARD])
         print("current A len = %s"%len(self.driver.window_handles))
+        print("cluster name = %s"%cluster)
         elem = self.find_element(By.PARTIAL_LINK_TEXT, cluster)
         if not elem:
             print(f"ERROR: Couldn't find cluster [{cluster}]. Cannot remove")
             return False
         elem.click()
         time.sleep(BIG_TIMEOUT)
+        time.sleep(300)
         elem = self.find_element(By.CLASS_NAME, 'close')
         if not elem:
             print("ERROR: Cannot find cluster remove button")
             return False
         # ISSUE
-        print("Element is visible? " + str(elem.is_displayed()))
+        print("1st Element is visible? " + str(elem.is_displayed()))
         if not elem.is_displayed():
             print("Zoom")
-            self.driver.execute_script('document.body.style.MozTransform = "scale(0.70)";')
+            self.driver.execute_script('document.body.style.MozTransform = "scale(0.80)";')
             time.sleep(300)
             print("Scroll")
             elementPosition = elem.location['x']
             self.driver.execute_script('window.scroll(%s, 0)'%(elementPosition))
-        #try:
-        elem = self.find_element(By.CLASS_NAME, 'close')
-        print("Element is visible? " + str(elem.is_displayed()))
+            print(f"Click tab [{cluster}] again")
+            elem = self.find_element(By.PARTIAL_LINK_TEXT, cluster)
+            if not elem:
+                print(f"ERROR: Couldn't find cluster [{cluster}]. Cannot remove")
+                return False
+            elem.click()
+            time.sleep(300)
+            elem = self.find_element(By.CLASS_NAME, 'close')
+        print("2nd Element is visible? " + str(elem.is_displayed()))
         elem.click()
         #except Exception as e:
         #    print(e)
