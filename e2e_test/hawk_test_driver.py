@@ -343,7 +343,8 @@ class HawkTestDriver:
         print("Element is visible? " + str(elem.is_displayed()))
         if not elem.is_displayed():
             print("Zoom")
-            self.driver.execute_script("document.body.style.MozTransform='80%'")
+            self.driver.execute_script("document.body.style.MozTransform='70%'")
+            elem = self.find_element(By.CLASS_NAME, 'close')
         #try:
         print("Element is visible? " + str(elem.is_displayed()))
         elem.click()
