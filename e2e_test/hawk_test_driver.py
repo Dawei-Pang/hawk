@@ -344,9 +344,12 @@ class HawkTestDriver:
         if not elem.is_displayed():
             print("Zoom")
             self.driver.execute_script('document.body.style.MozTransform = "scale(0.70)";')
-            time.sleep(60)
-            elem = self.find_element(By.CLASS_NAME, 'close')
+            time.sleep(300)
+            print("Scroll")
+            elementPosition = elem.location['x']
+            self.driver.execute_script('window.scroll(%s, 0)'%(elementPosition))
         #try:
+        elem = self.find_element(By.CLASS_NAME, 'close')
         print("Element is visible? " + str(elem.is_displayed()))
         elem.click()
         #except Exception as e:
