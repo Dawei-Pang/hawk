@@ -338,18 +338,11 @@ class HawkTestDriver:
         time.sleep(BIG_TIMEOUT)
         time.sleep(300)
         elem = self.find_element(By.CLASS_NAME, 'close')
+        print("1st Element is visible? " + str(elem.is_displayed()))
         if not elem:
             print("ERROR: Cannot find cluster remove button")
             return False
-        # ISSUE
-        print("1st Element is visible? " + str(elem.is_displayed()))
         if not elem.is_displayed():
-            print("Zoom")
-            self.driver.execute_script('document.body.style.MozTransform = "scale(0.80)";')
-            time.sleep(300)
-            print("Scroll")
-            elementPosition = elem.location['x']
-            self.driver.execute_script('window.scroll(%s, 0)'%(elementPosition))
             print(f"Click tab [{cluster}] again")
             elem = self.find_element(By.PARTIAL_LINK_TEXT, cluster)
             if not elem:
@@ -360,11 +353,6 @@ class HawkTestDriver:
             elem = self.find_element(By.CLASS_NAME, 'close')
         print("2nd Element is visible? " + str(elem.is_displayed()))
         elem.click()
-        #except Exception as e:
-        #    print(e)
-        #    print("current B len = %s"%len(self.driver.window_handles))
-        #    ActionChains(self.driver).move_to_element(elem).click(elem).perform()
-
         time.sleep(2 * self.timeout_scale)
         elem = self.find_element(By.CLASS_NAME, 'cancel')
         if not elem:
