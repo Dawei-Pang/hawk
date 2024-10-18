@@ -331,12 +331,14 @@ class HawkTestDriver:
         print("current A len = %s"%len(self.driver.window_handles))
         print("cluster name = %s"%cluster)
         elem = self.find_element(By.PARTIAL_LINK_TEXT, cluster)
-        print("1st cluster Element is selected? " + str(elem.is_selected()))
+        print("1st cluster Element is active? " + str(elem.get_attribute('class')))
+        print("elem text = %s"%elem.text)
         if not elem:
             print(f"ERROR: Couldn't find cluster [{cluster}]. Cannot remove")
             return False
         elem.click()
-        print("2st cluster Element is selected? " + str(elem.is_selected()))
+        print("2st cluster Element is active? " + str(elem.get_attribute('class')))
+        print("elem text = %s"%elem.text)
         time.sleep(BIG_TIMEOUT)
         time.sleep(300)
         elem = self.find_element(By.CLASS_NAME, 'close')
@@ -351,7 +353,8 @@ class HawkTestDriver:
                 print(f"ERROR: Couldn't find cluster [{cluster}]. Cannot remove")
                 return False
             elem.click()
-            print("3st cluster element is selected? " + str(elem.is_selected()))
+            print("3st cluster element is active? " + str(elem.get_attribute('class')))
+            print("elem text = %s"%elem.text)
             time.sleep(300)
             elem = self.find_element(By.CLASS_NAME, 'close')
         print("2nd Element is visible? " + str(elem.is_displayed()))
