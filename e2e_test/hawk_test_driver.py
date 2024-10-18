@@ -340,7 +340,7 @@ class HawkTestDriver:
         print("2st cluster Element is active? " + str(elem.get_attribute('class')))
         print("elem text = %s"%elem.text)
         time.sleep(BIG_TIMEOUT)
-        time.sleep(300)
+        time.sleep(36000)
         elem = self.find_element(By.CLASS_NAME, 'close')
         print("1st Element is visible? " + str(elem.is_displayed()))
         if not elem:
