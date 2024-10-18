@@ -7,7 +7,6 @@ import time
 from distutils.version import LooseVersion as Version
 
 from selenium import webdriver
-from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException, WebDriverException
@@ -328,36 +327,21 @@ class HawkTestDriver:
         print("TEST: test_remove_cluster")
         self.click_on('Dashboard')
         self.check_and_click_by_xpath("Click on Dashboard", [Xpath.HREF_DASHBOARD])
-        print("current A len = %s"%len(self.driver.window_handles))
-        print("cluster name = %s"%cluster)
         elem = self.find_element(By.PARTIAL_LINK_TEXT, cluster)
-        print("1st cluster Element is active? " + str(elem.get_attribute('class')))
-        print("elem text = %s"%elem.text)
         if not elem:
             print(f"ERROR: Couldn't find cluster [{cluster}]. Cannot remove")
             return False
         elem.click()
-        print("2st cluster Element is active? " + str(elem.get_attribute('class')))
-        print("elem text = %s"%elem.text)
         time.sleep(BIG_TIMEOUT)
-        time.sleep(36000)
+        while self.find_element(By.XPATH, f"//*[text()='{cluster}']/..").get_dom_attribute("class") != "active":
+            print(f"{cluster} is active? " + self.find_element(By.XPATH, f"//*[text()='{cluster}']/..").get_dom_attribute("class"))
+            elem.click()
+            time.sleep(BIG_TIMEOUT)
         elem = self.find_element(By.CLASS_NAME, 'close')
-        print("1st Element is visible? " + str(elem.is_displayed()))
+        print("Element is visible? " + str(elem.is_displayed()))
         if not elem:
             print("ERROR: Cannot find cluster remove button")
             return False
-        if not elem.is_displayed():
-            print(f"Click tab [{cluster}] again")
-            elem = self.find_element(By.PARTIAL_LINK_TEXT, cluster)
-            if not elem:
-                print(f"ERROR: Couldn't find cluster [{cluster}]. Cannot remove")
-                return False
-            elem.click()
-            print("3st cluster element is active? " + str(elem.get_attribute('class')))
-            print("elem text = %s"%elem.text)
-            time.sleep(300)
-            elem = self.find_element(By.CLASS_NAME, 'close')
-        print("2nd Element is visible? " + str(elem.is_displayed()))
         elem.click()
         time.sleep(2 * self.timeout_scale)
         elem = self.find_element(By.CLASS_NAME, 'cancel')
