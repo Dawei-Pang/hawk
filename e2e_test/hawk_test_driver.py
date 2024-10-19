@@ -331,10 +331,21 @@ class HawkTestDriver:
         if not elem:
             print(f"ERROR: Couldn't find cluster [{cluster}]. Cannot remove")
             return False
+        print(f"{cluster} is tagname? " + elem.tag_name)
+        print(f"{cluster} is enabled? " + elem.is_enabled())
+        print(f"{cluster} is displayed? " + elem.is_displayed())
+        print(f"{cluster} is value? " + elem.get_attribute("value"))
+        print(f"{cluster} is class? " + elem.get_attribute("class"))
+        print(f"{cluster} is herf ? " + elem.get_attribute("href"))
         elem.click()
-        time.sleep(10*BIG_TIMEOUT)
+        time.sleep(20*BIG_TIMEOUT)
         print(dir(elem))
-        print(f"{cluster} is active? " + elem.get_attribute("class"))
+        print(f"{cluster} is tagname? " + elem.tag_name)
+        print(f"{cluster} is enabled? " + elem.is_enabled())
+        print(f"{cluster} is displayed? " + elem.is_displayed())
+        print(f"{cluster} is value? " + elem.get_attribute("value"))
+        print(f"{cluster} is class? " + elem.get_attribute("class"))
+        print(f"{cluster} is herf ? " + elem.get_attribute("href"))
         elem = self.find_element(By.CLASS_NAME, 'close')
         print("Element is visible? " + str(elem.is_displayed()))
         if not elem:
