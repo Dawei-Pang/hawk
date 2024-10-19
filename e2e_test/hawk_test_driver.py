@@ -334,9 +334,7 @@ class HawkTestDriver:
         elem.click()
         time.sleep(10*BIG_TIMEOUT)
         print(dir(elem))
-        time.sleep(7200)
-        print(f"{cluster} is active? " + elem.get_dom_attribute("class"))
-        time.sleep(7200)
+        print(f"{cluster} is active? " + elem.get_attribute("class"))
         elem = self.find_element(By.CLASS_NAME, 'close')
         print("Element is visible? " + str(elem.is_displayed()))
         if not elem:
