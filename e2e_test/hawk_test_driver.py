@@ -347,7 +347,7 @@ class HawkTestDriver:
         print(f"parent is herf ? " + str(elep.get_attribute("href")))
         elem.click()
         time.sleep(20*BIG_TIMEOUT)
-        elep = elem.find_element(By.XPATH,"..")
+        elep = self.find_element(By.PARTIAL_LINK_TEXT, cluster).find_element(By.XPATH,"..")
         print(type(elep))
         print(f"parent after click is tagname? " + elep.tag_name)
         print(f"parent after click is enabled? " + str(elep.is_enabled()))
