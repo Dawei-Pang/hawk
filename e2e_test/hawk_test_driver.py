@@ -331,30 +331,17 @@ class HawkTestDriver:
         if not elem:
             print(f"ERROR: Couldn't find cluster [{cluster}]. Cannot remove")
             return False
-        print(f"{cluster} is tagname? " + elem.tag_name)
-        print(f"{cluster} is enabled? " + str(elem.is_enabled()))
-        print(f"{cluster} is displayed? " + str(elem.is_displayed()))
-        print(f"{cluster} is value? " + str(elem.get_attribute("value")))
-        print(f"{cluster} is class? " + str(elem.get_attribute("class")))
-        print(f"{cluster} is herf ? " + str(elem.get_attribute("href")))
-        elep = elem.find_element(By.XPATH,"..")
-        print(type(elep))
-        print(f"parent is tagname? " + elep.tag_name)
-        print(f"parent is enabled? " + str(elep.is_enabled()))
-        print(f"parent is displayed? " + str(elep.is_displayed()))
-        print(f"parent is value? " + str(elep.get_attribute("value")))
-        print(f"parent is class? " + str(elep.get_attribute("class")))
-        print(f"parent is herf ? " + str(elep.get_attribute("href")))
         elem.click()
-        time.sleep(20*BIG_TIMEOUT)
-        elep = self.find_element(By.PARTIAL_LINK_TEXT, cluster).find_element(By.XPATH,"..")
-        print(type(elep))
-        print(f"parent after click is tagname? " + elep.tag_name)
-        print(f"parent after click is enabled? " + str(elep.is_enabled()))
-        print(f"parent after click is displayed? " + str(elep.is_displayed()))
-        print(f"parent after click is value? " + str(elep.get_attribute("value")))
-        print(f"parent after click is class? " + str(elep.get_attribute("class")))
-        print(f"parent after click is herf ? " + str(elep.get_attribute("href")))
+        time.sleep(BIG_TIMEOUT)
+        while True:
+            is_active = self.find_element(By.PARTIAL_LINK_TEXT, cluster).find_element(By.XPATH,"..").get_attribute("class")
+            print("Is active ? " + is_active)
+            if is_active == "active":
+                break
+            else:
+                print(f"Retry click {cluster}")
+                self.find_element(By.PARTIAL_LINK_TEXT, cluster).click()
+                time.sleep(BIG_TIMEOUT)
         elem = self.find_element(By.CLASS_NAME, 'close')
         print("Element is visible? " + str(elem.is_displayed()))
         if not elem:
