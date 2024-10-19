@@ -338,7 +338,7 @@ class HawkTestDriver:
         print(f"{cluster} is class? " + str(elem.get_attribute("class")))
         print(f"{cluster} is herf ? " + str(elem.get_attribute("href")))
         elem = elem.find_element(By.XPATH,"..")
-        print(type(elem)
+        print(type(elem))
         #for ele in elem:
         #    print("---")
         #    print(f"{cluster} is tagname? " + ele.tag_name)
