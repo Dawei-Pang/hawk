@@ -337,7 +337,8 @@ class HawkTestDriver:
         print(f"{cluster} is value? " + str(elem.get_attribute("value")))
         print(f"{cluster} is class? " + str(elem.get_attribute("class")))
         print(f"{cluster} is herf ? " + str(elem.get_attribute("href")))
-        elem = elem.find_elements_by_xpath("./..")
+        elem = elem.find_elements_by_xpath("..")
+
         print(f"parent is tagname? " + elem.tag_name)
         print(f"parent is enabled? " + str(elem.is_enabled()))
         print(f"parent is displayed? " + str(elem.is_displayed()))
