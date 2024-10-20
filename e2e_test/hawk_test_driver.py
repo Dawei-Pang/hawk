@@ -334,7 +334,8 @@ class HawkTestDriver:
         elem.click()
         time.sleep(BIG_TIMEOUT)
         while True:
-            is_active = self.find_element(By.PARTIAL_LINK_TEXT, cluster).find_element(By.XPATH,"..").get_attribute("class")
+            #is_active = self.find_element(By.PARTIAL_LINK_TEXT, cluster).find_element(By.XPATH,"..").get_attribute("class")
+            is_active = self.find_element(By.XPATH, f"//*[text()='{cluster}']/..")
             print("Is active ? " + is_active)
             if is_active == "active":
                 break
