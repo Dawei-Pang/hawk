@@ -10,7 +10,7 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException, WebDriverException
-from selenium.common.exceptions import ElementNotInteractableException
+from selenium.common.exceptions import ElementNotInteractableException, NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -305,19 +305,58 @@ class HawkTestDriver:
         Returns:
            None
         '''
+        wait = WebDriverWait(self.driver, 10 * self.timeout_scale)
         for xpath in xpath_exps:
+            # Find element
             time.sleep(1)
             elem = self.find_element(By.XPATH, xpath)
             if not elem:
                 print(f"ERROR: Couldn't find element by xpath [{xpath}] {errmsg}")
                 self.test_status = False
                 return
+            # Interact
             try:
+                # Wait until element is actually clickable (better than time.sleep)
+                elem = wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))
+                self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", elem)
+                time.sleep(1)
                 elem.click()
-            except ElementNotInteractableException:
-                # Element is obscured. Wait and click again
-                time.sleep(10 * self.timeout_scale)
-                elem.click()
+                return # Success
+            except (ElementNotInteractableException, TimeoutException):
+                print(f"WARNING: Element [{xpath}] found but not interactable. Diagnostic start:")
+                # Check for overlays
+                self.log_element_debug_info(xpath, elem)
+                print(f"Attempting final fallback: JavaScript Click for [{xpath}]")
+                try:
+                    self.driver.execute_script("arguments[0].click();", elem)
+                    return # Fallback success
+                except Exception as final_err:
+                    print(f"CRITICAL: JS Click also failed: {final_err}")
+                    self.test_status = False
+                    return
+
+    def log_element_debug_info(self, xpath, elem):
+        """Helper to inspect element state when click fails."""
+        try:
+            # Get CSS and physical state
+            is_disp = elem.is_displayed()
+            rect = self.driver.execute_script("return arguments[0].getBoundingClientRect();", elem)
+
+            # Determine what is physically at the center of the element
+            # This identifies overlays like 'loading' spinners or sticky navbars
+            on_top = self.driver.execute_script(
+                "return document.elementFromPoint(arguments[0], arguments[1]);",
+                rect['left'] + rect['width']/2, rect['top'] + rect['height']/2
+            )
+
+            print(f"  [DEBUG] Visibility: {is_disp}")
+            print(f"  [DEBUG] Rect: {rect}")
+            if on_top:
+                tag = on_top.tag_name
+                cls = on_top.get_attribute('class')
+                print(f"  [DEBUG] Blocked by: <{tag}> class='{cls}'")
+        except Exception as err:
+            print(f"  [DEBUG] Failed to gather diagnostics: {err}")
 
     # Generic function to perform the tests
     def test(self, testname, results, *extra):
