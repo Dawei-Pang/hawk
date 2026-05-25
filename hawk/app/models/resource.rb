@@ -159,6 +159,9 @@ class Resource < Record
       elsif l.strip =~ /^Resources .+ is colocated with:$/
         section = :colocation
         next
+      elsif l.strip =~ /^Resources colocated with .+:$/
+        section = :colocation
+        next
       elsif l !~ /^  / # new Top-Level-Section
         section = nil
         next
