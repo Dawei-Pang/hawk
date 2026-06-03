@@ -24,11 +24,11 @@ BIG_TIMEOUT = 6
 class Error:
     MAINT_TOGGLE_ERR = "Could not find Switch to Maintenance toggle button for node"
     PRIMITIVE_TARGET_ROLE_ERR = "Couldn't find value [Started] for primitive target-role"
-    FENCING_ERR = "Couldn't find stonith-sbd menu to place it in maintenance mode"
+    FENCING_ERR = "Couldn't find fencing-sbd|stonith-sbd menu to place it in maintenance mode"
     COOL_PRIMITIVE_ERR = "Couldn't find cool_primitive menu to edit"
-    HOT_PRIMITIVE_ERR = "Couldn't find hot_primitive menu to edit"
-    DUMMY_PRIMITIVE_ERR = "Couldn't find hot_primitive menu to edit"
-    FENCING_ERR_OFF = "Could not find Disable Maintenance Mode button for stonith-sbd"
+    DUM_PRIMITIVE_ERR = "Couldn't find dum_primitive menu to edit"
+    DUMMY_PRIMITIVE_ERR = "Couldn't find dummy_primitive menu to edit"
+    FENCING_ERR_OFF = "Could not find Disable Maintenance Mode button for fencing-sbd|stonith-sbd"
     CRM_CONFIG_ADVANCED_ATTRIBUTES = "crm_config dropdown box shows the advanced attributes, but shouldn't"
 
 
@@ -71,15 +71,15 @@ class Xpath:
     NODE_READY = '//a[contains(@href, "ready") and contains(@title, "Switch to ready")]'
     OCF_OPT_LIST = '//option[contains(@value, "ocf")]'
     OPERATIONS = '//*[@id="nodes"]/div[1]/div[2]/div[2]/table/tbody/tr[1]/td[5]/div/div/button'
-    OPT_FENCING = '//option[contains(@value, "stonith-sbd")]'
+    OPT_FENCING = '//option[contains(@value, "fencing-sbd") or contains(@value, "stonith-sbd")]'
     RESOURCES_TYPES = '//a[contains(@href, "resources/types")]'
     RSC_OK_SUBMIT = '//input[contains(@class, "submit")]'
     RSC_ROWS = '//*[@id="resources"]/div[1]/div[2]/div[2]/table/tbody/tr'
-    FENCING_CHKBOX = '//input[contains(@type, "checkbox") and contains(@value, "stonith-sbd")]'
-    FENCING_MAINT_OFF = '//a[contains(@href, "stonith-sbd") and contains(@title, "Disable Maintenance Mode")]'
-    FENCING_MAINT_ON = '//a[contains(@href, "stonith-sbd/maintenance_on")]'
+    FENCING_CHKBOX = '//input[contains(@type, "checkbox") and (contains(@value, "fencing-sbd") or contains(@value, "stonith-sbd"))]'
+    FENCING_MAINT_OFF = '//a[(contains(@href, "fencing-sbd") or contains(@href, "stonith-sbd")) and contains(@title, "Disable Maintenance Mode")]'
+    FENCING_MAINT_ON = '//a[contains(@href, "fencing-sbd/maintenance_on") or contains(@href, "stonith-sbd/maintenance_on")]'
     COOL_PRIMITIVE_EDIT = '//a[contains(@href, "cool_primitive/edit")]'
-    HOT_PRIMITIVE_EDIT = '//a[contains(@href, "hot_primitive/edit")]'
+    DUM_PRIMITIVE_EDIT = '//a[contains(@href, "dum_primitive/edit")]'
     DUMMY_PRIMITIVE_EDIT = '//a[contains(@href, "dummy_primitive/edit")]'
     TARGET_ROLE_FORMAT = '//select[contains(@class, "form-control") and contains(@name, "{}[meta][target-role]")]'
     TARGET_ROLE_STARTED = '//option[contains(@value, "tarted")]'
@@ -344,9 +344,9 @@ class HawkTestDriver:
                 self.driver.save_screenshot(f'{testname}.png')
         self._close()
 
-    def test_set_stonith_maintenance(self):
+    def test_set_fencing_maintenance(self):
         '''
-        Set FENCING/sbd in maintenance. Assumes stonith-sbd resource is the last one listed on the
+        Set FENCING/sbd in maintenance. Assumes fencing-sbd|stonith-sbd resource is the last one listed on the
         resources table
         Returns:
             boolean: True if successful or False if failed
@@ -356,27 +356,27 @@ class HawkTestDriver:
             totalrows = len(self.driver.find_elements(By.XPATH, Xpath.RSC_ROWS))
             if not totalrows:
                 totalrows = 1
-            print("TEST: test_set_stonith_maintenance: Placing stonith-sbd in maintenance")
+            print("TEST: test_set_stonith_maintenance: Placing fencing-sbd|stonith-sbd in maintenance")
             self.check_and_click_by_xpath(Error.FENCING_ERR, [Xpath.DROP_DOWN_FORMAT.format(totalrows),
                                                               Xpath.FENCING_MAINT_ON, Xpath.COMMIT_BTN_DANGER])
         if self.verify_success():
-            print("INFO: stonith-sbd successfully placed in maintenance mode")
+            print("INFO: fencing-sbd|stonith-sbd successfully placed in maintenance mode")
             return True
-        print("ERROR: failed to place stonith-sbd in maintenance mode")
+        print("ERROR: failed to place fencing-sbd|stonith-sbd in maintenance mode")
         return False
 
-    def test_disable_stonith_maintenance(self):
+    def test_disable_fencing_maintenance(self):
         '''
         Disable maintenance in FENCING/sbd
         Returns:
             boolean: True if successful or False if failed
         '''
-        print("TEST: test_disable_stonith_maintenance: Re-activating stonith-sbd")
+        print("TEST: test_disable_stonith_maintenance: Re-activating fencing-sbd|stonith-sbd")
         self.check_and_click_by_xpath(Error.FENCING_ERR_OFF, [Xpath.FENCING_MAINT_OFF, Xpath.COMMIT_BTN_DANGER])
         if self.verify_success():
-            print("INFO: stonith-sbd successfully reactivated")
+            print("INFO: fencing-sbd|stonith-sbd successfully reactivated")
             return True
-        print("ERROR: failed to reactive stonith-sbd from maintenance mode")
+        print("ERROR: failed to reactive fencing-sbd|stonith-sbd from maintenance mode")
         return False
 
     def test_view_details_first_node(self):
@@ -647,20 +647,20 @@ class HawkTestDriver:
 
     def test_copy_primitive(self):
         '''
-        Copy the cool_primitive into hot_primitive. This assumes the cool_primitive
+        Copy the cool_primitive into dum_primitive. This assumes the cool_primitive
         resource is the first entry in the resources table
         Returns:
             boolean: True if successful or False if failed
         '''
         if self.find_element(By.XPATH, Xpath.RSC_ROWS):
-            print("TEST: test_copy_primitive: cool_primitive --> cool_primitive + hot_primitive")
-            resource_number_from_top = 1 # 1. cool_primitive, 2. stonith-sbd
+            print("TEST: test_copy_primitive: cool_primitive --> cool_primitive + dum_primitive")
+            resource_number_from_top = 1 # 1. cool_primitive, 2. fencing-sbd|stonith-sbd
             # First, click on Edit
             time.sleep(2)
             self.check_and_click_by_xpath(Error.COOL_PRIMITIVE_ERR, [Xpath.DROP_DOWN_FORMAT.format(resource_number_from_top),
                                                                      Xpath.COOL_PRIMITIVE_EDIT])
 
-            # Second, copy the cool_primitive into hot_primitive
+            # Second, copy the cool_primitive into dum_primitive
             time.sleep(2) # to redirect
             # try to find '<a>Copy</a>' for 10 seconds (Ruby hawk),
             # if none --> look for '<button name="copy"> (Go hawk)
@@ -671,7 +671,7 @@ class HawkTestDriver:
             copy_btn.click()
 
             time.sleep(7) # to fetch meta attributes
-            self.fill_value("primitive[id]", "hot_primitive")
+            self.fill_value("primitive[id]", "dum_primitive")
 
             submit_btn = self.find_element(By.NAME, "submit")
             if not submit_btn:
@@ -680,33 +680,33 @@ class HawkTestDriver:
             submit_btn.click()
 
             if self.verify_success():
-                print("INFO: cool_primitive successfully copied into hot_primitive")
+                print("INFO: cool_primitive successfully copied into dum_primitive")
                 return True
-        print("ERROR: failed to copy cool_primitive into hot_primitive")
+        print("ERROR: failed to copy cool_primitive into dum_primitive")
         return False
 
     def test_rename_primitive(self):
         '''
-        Rename the hot_primitive to dummy_primitive. This assumes the hot_primitive
+        Rename the dum_primitive to dummy_primitive. This assumes the dum_primitive
         resource is the second entry in the resources table
         Returns:
             boolean: True if successful or False if failed
         '''
         if self.find_element(By.XPATH, Xpath.RSC_ROWS):
-            print("TEST: test_rename_primitive: hot_primitive --> dummy_primitive")
-            resource_number_from_top = 2 # 1. cool_primitive, 2. hot_primitive, 3. stonith-sbd
+            print("TEST: test_rename_primitive: dum_primitive --> dummy_primitive")
+            resource_number_from_top = 2 # 1. cool_primitive, 2. dum_primitive, 3. fencing-sbd|stonith-sbd
 
             # First, stop the cool_primitive
             time.sleep(2)
-            self.check_and_click_by_xpath(Error.HOT_PRIMITIVE_ERR,[Xpath.STOP_PRIMITIVE_FORMAT.format(resource_number_from_top),
+            self.check_and_click_by_xpath(Error.DUM_PRIMITIVE_ERR,[Xpath.STOP_PRIMITIVE_FORMAT.format(resource_number_from_top),
                                                                     Xpath.COMMIT_BTN_DANGER])
 
             # Second, click on Edit
             time.sleep(BIG_TIMEOUT)
-            self.check_and_click_by_xpath(Error.HOT_PRIMITIVE_ERR, [Xpath.DROP_DOWN_FORMAT.format(resource_number_from_top),
-                                                                     Xpath.HOT_PRIMITIVE_EDIT])
+            self.check_and_click_by_xpath(Error.DUM_PRIMITIVE_ERR, [Xpath.DROP_DOWN_FORMAT.format(resource_number_from_top),
+                                                                     Xpath.DUM_PRIMITIVE_EDIT])
 
-            # Third, rename the cool_primitive to hot_primitive
+            # Third, rename the cool_primitive to dum_primitive
             time.sleep(BIG_TIMEOUT) # wait the redirect finishes
             # try to find '<a>Rename</a>' for 10 seconds (Ruby hawk),
             # if none --> look for '<button name="rename"> (Go hawk)
@@ -733,9 +733,9 @@ class HawkTestDriver:
             submit_btn.click()
 
             if self.verify_success():
-                print("INFO: hot_primitive successfully renamed into dummy_primitive")
+                print("INFO: dum_primitive successfully renamed into dummy_primitive")
                 return True
-        print("ERROR: failed to rename hot_primitive into dummy_primitive")
+        print("ERROR: failed to rename dum_primitive into dummy_primitive")
         return False
 
     def test_delete_primitive(self):
@@ -747,7 +747,7 @@ class HawkTestDriver:
         '''
         if self.find_element(By.XPATH, Xpath.RSC_ROWS):
             print("TEST: test_delete_primitive: Delete the dummy_primitive")
-            resource_number_from_top = 2 # 1. cool_primitive, 2. dummy_primitive, 3. stonith-sbd
+            resource_number_from_top = 2 # 1. cool_primitive, 2. dummy_primitive, 3. fencing-sbd|stonith-sbd
 
             # First, click on edit
             time.sleep(2)
@@ -859,7 +859,7 @@ class HawkTestDriver:
                                       [Xpath.CLONE_CHILD, Xpath.OPT_FENCING, Xpath.TARGET_ROLE_FORMAT.format('clone'),
                                        Xpath.TARGET_ROLE_STARTED, Xpath.RSC_OK_SUBMIT])
         if self.verify_success():
-            print(f"INFO: Successfully added clone [{clone}] of [stonith-sbd]")
+            print(f"INFO: Successfully added clone [{clone}] of [fencing-sbd|stonith-sbd]")
             return True
         print(f"ERROR: Could not create clone [{clone}]")
         return False
@@ -886,7 +886,7 @@ class HawkTestDriver:
                                       [Xpath.FENCING_CHKBOX, Xpath.TARGET_ROLE_FORMAT.format('group'),
                                        Xpath.TARGET_ROLE_STARTED, Xpath.RSC_OK_SUBMIT])
         if self.verify_success():
-            print(f"INFO: Successfully added group [{group}] of [stonith-sbd]")
+            print(f"INFO: Successfully added group [{group}] of [fencing-sbd|stonith-sbd]")
             return True
         print(f"ERROR: Could not create group [{group}]")
         return False

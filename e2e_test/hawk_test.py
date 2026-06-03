@@ -137,9 +137,9 @@ def main():
     else:
         results.set_test_status('test_add_virtual_ip', 'skipped')
         results.set_test_status('test_remove_virtual_ip', 'skipped')
-    browser.test('test_set_stonith_maintenance', results)
-    ssh.verify_stonith_in_maintenance(results)
-    browser.test('test_disable_stonith_maintenance', results)
+    browser.test('test_set_fencing_maintenance', results)
+    ssh.verify_fencing_in_maintenance(results)
+    browser.test('test_disable_fencing_maintenance', results)
     browser.test('test_view_details_first_node', results)
     browser.test('test_clear_state_first_node', results)
     browser.test('test_set_first_node_maintenance', results)

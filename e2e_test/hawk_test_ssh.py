@@ -36,7 +36,7 @@ class HawkTestSSH:
             return False
         return True
 
-    def get_cluster_conf_ssh_output(self, command):
+    def get_cluster_conf_ssh_output(self, command, ignore_warning = False):
         '''
         Execute command via SSH connection and compare if its output matches expectation
         Args:
@@ -48,6 +48,8 @@ class HawkTestSSH:
         _, out, err = self.ssh.exec_command(command)
         out, err = map(lambda f: f.read().decode().rstrip('\n'), (out, err))
         print(f"INFO: ssh command [{command}] got output [{out}] and error [{err}]")
+        if ignore_warning and err.lower().startswith('warning'):
+            return out
         if err:
             print(f"ERROR: got an error over SSH: [{err}]")
             return False
@@ -64,24 +66,24 @@ class HawkTestSSH:
         '''
         results.set_test_status(test, status)
 
-    def verify_stonith_in_maintenance(self, results):
+    def verify_fencing_in_maintenance(self, results):
         '''
-        Verify stonith-sbd is unmanaged or maintenance and update test status
+        Verify fencing-sbd|stonith-sbd is unmanaged or maintenance and update test status
         Args:
             results(obj): instance of class ResultSet
         Return:
             boolean:
-                True when stonith-sbd is unmanaged/maintenance
-                False when stonith-sbd is not unmanaged nor in maintenance
+                True when fencing-sbd|stonith-sbd is unmanaged/maintenance
+                False when fencing-sbd|stonith-sbd is not unmanaged nor in maintenance
         '''
-        print("TEST: verify_stonith_in_maintenance")
-        out = self.get_cluster_conf_ssh_output("crm status | grep stonith-sbd")
+        print("TEST: verify_fencing_in_maintenance")
+        out = self.get_cluster_conf_ssh_output("crm status | grep 'fencing-sbd\|stonith-sbd'")
         if any(_ in out for _ in ('unmanaged', 'maintenance')):
-            print("INFO: stonith-sbd is unmanaged/maintenance")
-            self.set_test_status(results, 'verify_stonith_in_maintenance', 'passed')
+            print("INFO: fencing-sbd|stonith-sbd is unmanaged/maintenance")
+            self.set_test_status(results, 'verify_fencing_in_maintenance', 'passed')
             return True
-        print("ERROR: stonith-sbd is not unmanaged nor in maintenance but should be")
-        self.set_test_status(results, 'verify_stonith_in_maintenance', 'failed')
+        print("ERROR: fencing-sbd|stonith-sbd is not unmanaged nor in maintenance but should be")
+        self.set_test_status(results, 'verify_fencing_in_maintenance', 'failed')
         return False
 
     def verify_node_maintenance(self, results):
@@ -123,7 +125,8 @@ class HawkTestSSH:
             matches.append("op stop timeout=15s")
         else:
             matches.append("op stop timeout=15s on-fail=stop")
-        out = self.get_cluster_conf_ssh_output("crm configure show")
+        # ignore `WARNING: "stonith-enabled" is deprecated, please consider using "fencing-enabled"`
+        out = self.get_cluster_conf_ssh_output("crm configure show", ignore_warning=True)
         if all(_ in out for _ in matches):
             print(f"INFO: primitive [{primitive}] correctly defined in the cluster configuration")
             self.set_test_status(results, 'verify_primitive', 'passed')
