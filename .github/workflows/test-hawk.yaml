@@ -150,7 +150,7 @@ jobs:
 
       - name: Create a stonith-sbd device
         run: |
-          docker exec node1 crm configure primitive stonith-sbd ocf:pacemaker:Dummy
+          docker exec node1 crm configure primitive fencing-sbd ocf:pacemaker:Dummy
 
       - name: Run the functional test
         run: |
