@@ -18,7 +18,7 @@ module TicketHelper
     {
       "Started" => _("Started"),
       "Master" => _("Promoted"),
-      "Slave" => _("Promotable"),
+      "Slave" => _("Unpromoted"),
       "Stopped" => _("Stopped")
     }
   end
