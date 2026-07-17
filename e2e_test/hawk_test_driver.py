@@ -39,9 +39,10 @@ class Xpath:
     CLONE_CHILD = '//select[contains(@data-help-filter, ".row.resource") and contains(@name, "clone[child]")]'
     CLONE_DATA_HELP_FILTER = '//a[contains(@data-help-filter, ".clone")]'
     COMMIT_BTN_DANGER = '//button[contains(@class, "btn-danger") and contains(@class, "commit")]'
-    DISMISS_MODAL = '//*[@id="modal"]/div/div/div[3]/button'
-    STOP_PRIMITIVE_FORMAT = '//*[@id="resources"]/div[1]/div[2]/div[2]/table/tbody/tr[{}]/td[6]/div/a[1]'
-    DROP_DOWN_FORMAT = '//*[@id="resources"]/div[1]/div[2]/div[2]/table/tbody/tr[{}]/td[6]/div/div'
+    DISMISS_MODAL = '//*[@id="modal"]/div/div/div[3]/button | //*[@id="modal-popup"]/div/div[3]/button' # modal-popup --> Go-hawk
+    STOP_PRIMITIVE_FORMAT = '//*[@id="resources"]//table/tbody/tr[{}]/td[6]/div/a[1]'
+    DROP_DOWN_FORMAT = '//*[@id="resources"]//table/tbody/tr[{}]/td[6]/div/div'
+    DROP_DOWN_FORMAT_NEW = '//*[@id="resources"]/table/tbody/tr[{}]/td[6]/div/div'
     EDIT_MONITOR_TIMEOUT = '//*[@id="oplist"]/fieldset/div/div[1]/div[3]/div[2]/div/div/a[1]'
     EDIT_START_TIMEOUT = '//*[@id="oplist"]/fieldset/div/div[1]/div[1]/div[2]/div/div/a[1]'
     EDIT_STOP_TIMEOUT = '//*[@id="oplist"]/fieldset/div/div[1]/div[2]/div[2]/div/div/a[1]'
@@ -66,18 +67,20 @@ class Xpath:
     MODAL_MONITOR_TIMEOUT = '//*[@id="modal"]/div/div/form/div[2]/fieldset/div/div[1]/div'
     MODAL_STOP = '//*[@id="modal"]/div/div/form/div[2]/fieldset/div/div[2]/div/div/select/option[6]'
     MODAL_TIMEOUT = '//*[@id="modal"]/div/div/form/div[2]/fieldset/div/div[1]/div/div'
-    NODE_DETAILS = '//*[@id="nodes"]/div[1]/div[2]/div[2]/table/tbody/tr[1]/td[5]/div/a[2]'
-    NODE_MAINT = '//a[contains(@href, "maintenance") and contains(@title, "Switch to maintenance")]'
-    NODE_READY = '//a[contains(@href, "ready") and contains(@title, "Switch to ready")]'
+    NODE_DETAILS = '//*[@id="nodes"]//table/tbody/tr[1]/td[5]/div/a[2]'
+    NODE_MAINT = '//a[(contains(@href, "maintenance") or contains(@class, "maintenance")) and contains(@title, "Switch to maintenance")]'
+    NODE_READY = '//a[(contains(@href, "ready") or contains(@class, "maintenance")) and contains(@title, "Switch to ready")]'
     OCF_OPT_LIST = '//option[contains(@value, "ocf")]'
-    OPERATIONS = '//*[@id="nodes"]/div[1]/div[2]/div[2]/table/tbody/tr[1]/td[5]/div/div/button'
+    OPERATIONS = '//*[@id="nodes"]//table/tbody/tr[1]/td[5]/div/div/button'
     OPT_FENCING = '//option[contains(@value, "fencing-sbd") or contains(@value, "stonith-sbd")]'
     RESOURCES_TYPES = '//a[contains(@href, "resources/types")]'
     RSC_OK_SUBMIT = '//input[contains(@class, "submit")]'
     RSC_ROWS = '//*[@id="resources"]/div[1]/div[2]/div[2]/table/tbody/tr'
+    RSC_ROWS_NEW = '//*[@id="resources"]/table/tbody/tr'
     FENCING_CHKBOX = '//input[contains(@type, "checkbox") and (contains(@value, "fencing-sbd") or contains(@value, "stonith-sbd"))]'
-    FENCING_MAINT_OFF = '//a[(contains(@href, "fencing-sbd") or contains(@href, "stonith-sbd")) and contains(@title, "Disable Maintenance Mode")]'
+    FENCING_MAINT_OFF = '//a[(contains(@href, "fencing-sbd") or contains(@href, "stonith-sbd")) and contains(@title, "Disable Maintenance Mode") or @id="maintenance_off"]'
     FENCING_MAINT_ON = '//a[contains(@href, "fencing-sbd/maintenance_on") or contains(@href, "stonith-sbd/maintenance_on")]'
+    FENCING_MAINT_ON_NEW = '//a[@id="maintenance_on"]'
     COOL_PRIMITIVE_EDIT = '//a[contains(@href, "cool_primitive/edit")]'
     DUM_PRIMITIVE_EDIT = '//a[contains(@href, "dum_primitive/edit")]'
     DUMMY_PRIMITIVE_EDIT = '//a[contains(@href, "dummy_primitive/edit")]'
@@ -200,7 +203,8 @@ class HawkTestDriver:
            text (str): target text and click it
         '''
         if Version(self.test_version) >= Version(version_to_check):
-            self.find_element(By.XPATH, f"//*[text()='{text.capitalize()}']").click()
+            elem = self.find_element(By.XPATH, f"//*[normalize-space(.)='{text.capitalize()}']")
+            elem.click()
 
     def click_on(self, text):
         '''
@@ -351,14 +355,23 @@ class HawkTestDriver:
         Returns:
             boolean: True if successful or False if failed
         '''
-        # wait for page to fully load
-        if self.find_element(By.XPATH, Xpath.RSC_ROWS):
+        print("TEST: test_set_stonith_maintenance: Placing fencing-sbd|stonith-sbd in maintenance")
+
+        # try to find the old RSC_ROWS for 10 seconds (Ruby hawk)
+        # if none --> search for RSC_ROWS_NEW (Go hawk)
+        if self.find_element(By.XPATH, Xpath.RSC_ROWS, 10):
             totalrows = len(self.driver.find_elements(By.XPATH, Xpath.RSC_ROWS))
             if not totalrows:
                 totalrows = 1
-            print("TEST: test_set_stonith_maintenance: Placing fencing-sbd|stonith-sbd in maintenance")
             self.check_and_click_by_xpath(Error.FENCING_ERR, [Xpath.DROP_DOWN_FORMAT.format(totalrows),
                                                               Xpath.FENCING_MAINT_ON, Xpath.COMMIT_BTN_DANGER])
+        elif self.find_element(By.XPATH, Xpath.RSC_ROWS_NEW):
+            totalrows = len(self.driver.find_elements(By.XPATH, Xpath.RSC_ROWS_NEW))
+            if not totalrows:
+                totalrows = 1
+            self.check_and_click_by_xpath(Error.FENCING_ERR, [Xpath.DROP_DOWN_FORMAT_NEW.format(totalrows),
+                                                            Xpath.FENCING_MAINT_ON_NEW, Xpath.COMMIT_BTN_DANGER])
+
         if self.verify_success():
             print("INFO: fencing-sbd|stonith-sbd successfully placed in maintenance mode")
             return True
@@ -652,9 +665,11 @@ class HawkTestDriver:
         Returns:
             boolean: True if successful or False if failed
         '''
-        if self.find_element(By.XPATH, Xpath.RSC_ROWS):
-            print("TEST: test_copy_primitive: cool_primitive --> cool_primitive + dum_primitive")
-            resource_number_from_top = 1 # 1. cool_primitive, 2. fencing-sbd|stonith-sbd
+        print("TEST: test_copy_primitive: cool_primitive --> cool_primitive + dum_primitive")
+        resource_number_from_top = 1 # 1. cool_primitive, 2. fencing-sbd|stonith-sbd
+        copy_btn = None
+
+        if self.find_element(By.XPATH, Xpath.RSC_ROWS, 10):
             # First, click on Edit
             time.sleep(2)
             self.check_and_click_by_xpath(Error.COOL_PRIMITIVE_ERR, [Xpath.DROP_DOWN_FORMAT.format(resource_number_from_top),
@@ -662,26 +677,39 @@ class HawkTestDriver:
 
             # Second, copy the cool_primitive into dum_primitive
             time.sleep(2) # to redirect
-            # try to find '<a>Copy</a>' for 10 seconds (Ruby hawk),
-            # if none --> look for '<button name="copy"> (Go hawk)
-            copy_btn = self.find_element(By.LINK_TEXT, "Copy", 10) or self.find_element(By.NAME, "copy")
-            if not copy_btn:
-                print("ERROR: Couldn't find Copy button")
-                return False
-            copy_btn.click()
+            copy_btn = self.find_element(By.LINK_TEXT, "Copy") # search for '<a>Copy</a>' (Ruby hawk),
 
-            time.sleep(7) # to fetch meta attributes
-            self.fill_value("primitive[id]", "dum_primitive")
+        elif self.find_element(By.XPATH, Xpath.RSC_ROWS_NEW):
+            # First, click on Edit
+            time.sleep(2)
+            self.check_and_click_by_xpath(Error.COOL_PRIMITIVE_ERR, [Xpath.DROP_DOWN_FORMAT_NEW.format(resource_number_from_top),
+                                                                     Xpath.COOL_PRIMITIVE_EDIT])
 
-            submit_btn = self.find_element(By.NAME, "submit")
-            if not submit_btn:
-                print("ERROR: Couldn't find Submit button")
-                return False
-            submit_btn.click()
+            # Second, copy the cool_primitive into dum_primitive
+            time.sleep(2) # to redirect
+            copy_btn = self.find_element(By.NAME, "copy") # search for for '<button name="copy"> (Go hawk)
+        else:
+            print("ERROR: failed to copy cool_primitive into dum_primitive")
+            return False
 
-            if self.verify_success():
-                print("INFO: cool_primitive successfully copied into dum_primitive")
-                return True
+        if not copy_btn:
+            print("ERROR: Couldn't find Copy button")
+            return False
+        copy_btn.click()
+
+        time.sleep(7) # to fetch meta attributes
+        self.fill_value("primitive[id]", "dum_primitive")
+
+        submit_btn = self.find_element(By.NAME, "submit")
+        if not submit_btn:
+            print("ERROR: Couldn't find Submit button")
+            return False
+        submit_btn.click()
+
+        if self.verify_success():
+            print("INFO: cool_primitive successfully copied into dum_primitive")
+            return True
+
         print("ERROR: failed to copy cool_primitive into dum_primitive")
         return False
 
@@ -692,10 +720,11 @@ class HawkTestDriver:
         Returns:
             boolean: True if successful or False if failed
         '''
-        if self.find_element(By.XPATH, Xpath.RSC_ROWS):
-            print("TEST: test_rename_primitive: dum_primitive --> dummy_primitive")
-            resource_number_from_top = 2 # 1. cool_primitive, 2. dum_primitive, 3. fencing-sbd|stonith-sbd
+        print("TEST: test_rename_primitive: dum_primitive --> dummy_primitive")
+        resource_number_from_top = 2 # 1. cool_primitive, 2. dum_primitive, 3. fencing-sbd|stonith-sbd
+        input_elem = None
 
+        if self.find_element(By.XPATH, Xpath.RSC_ROWS, 10):
             # First, stop the cool_primitive
             time.sleep(2)
             self.check_and_click_by_xpath(Error.DUM_PRIMITIVE_ERR,[Xpath.STOP_PRIMITIVE_FORMAT.format(resource_number_from_top),
@@ -708,33 +737,58 @@ class HawkTestDriver:
 
             # Third, rename the cool_primitive to dum_primitive
             time.sleep(BIG_TIMEOUT) # wait the redirect finishes
-            # try to find '<a>Rename</a>' for 10 seconds (Ruby hawk),
-            # if none --> look for '<button name="rename"> (Go hawk)
-            rename_btn = self.find_element(By.LINK_TEXT, "Rename", 10) or self.find_element(By.NAME, "rename")
+            # search for '<a>Rename</a>' (Ruby hawk),
+            rename_btn = self.find_element(By.LINK_TEXT, "Rename")
             if not rename_btn:
                 print("ERROR: Couldn't find Rename button")
                 return False
             rename_btn.click()
 
-            # try to find '<input id="to">' for 10 seconds (Ruby hawk),
-            # if none --> look for '<input name="renamePopupInputTo"> (Go hawk)
-            input_elem = self.find_element(By.ID, "to", 5) or self.find_element(By.NAME, "renamePopupInputTo", 5)
-            if not input_elem:
-                print("ERROR: Couldn't find rename input field (id='to' or name='renamePopupInputTo')")
-                return False
-            input_elem.clear()
-            input_elem.send_keys("dummy_primitive")
+            # search for '<input id="to">' (Ruby hawk),
+            input_elem = self.find_element(By.ID, "to")
 
-            # There are 2 submit buttons, one on the main page and another on the popup (the one we need)
-            submit_btn = self.find_element(By.XPATH, '//button[@type="submit" and .//i[contains(@class, "fa-save")]]', 10)
-            if not submit_btn:
-                print("ERROR: Couldn't find Rename-Submit button")
-                return False
-            submit_btn.click()
+        elif self.find_element(By.XPATH, Xpath.RSC_ROWS_NEW):
+            # First, stop the cool_primitive
+            time.sleep(2)
+            self.check_and_click_by_xpath(Error.DUM_PRIMITIVE_ERR,[Xpath.STOP_PRIMITIVE_FORMAT.format(resource_number_from_top),
+                                                                    Xpath.COMMIT_BTN_DANGER])
 
-            if self.verify_success():
-                print("INFO: dum_primitive successfully renamed into dummy_primitive")
-                return True
+            # Second, click on Edit
+            time.sleep(BIG_TIMEOUT)
+            self.check_and_click_by_xpath(Error.DUM_PRIMITIVE_ERR, [Xpath.DROP_DOWN_FORMAT.format(resource_number_from_top),
+                                                                     Xpath.DUM_PRIMITIVE_EDIT])
+
+            # Third, rename the cool_primitive to dum_primitive
+            time.sleep(BIG_TIMEOUT) # wait the redirect finishes
+            # search for '<button name="rename"> (Go hawk)
+            rename_btn = self.find_element(By.NAME, "rename")
+            if not rename_btn:
+                print("ERROR: Couldn't find Rename button")
+                return False
+            rename_btn.click()
+
+            # search for '<input name="renamePopupInputTo"> (Go hawk)
+            input_elem = self.find_element(By.NAME, "renamePopupInputTo")
+        else:
+            print("ERROR: failed to rename dum_primitive into dummy_primitive")
+            return False
+
+        if not input_elem:
+            print("ERROR: Couldn't find rename input field (id='to' or name='renamePopupInputTo')")
+            return False
+        input_elem.clear()
+        input_elem.send_keys("dummy_primitive")
+
+        # There are 2 submit buttons, one on the main page and another on the popup (the one we need)
+        submit_btn = self.find_element(By.XPATH, '//button[@type="submit" and .//i[contains(@class, "fa-save")]]', 10)
+        if not submit_btn:
+            print("ERROR: Couldn't find Rename-Submit button")
+            return False
+        submit_btn.click()
+
+        if self.verify_success():
+            print("INFO: dum_primitive successfully renamed into dummy_primitive")
+            return True
         print("ERROR: failed to rename dum_primitive into dummy_primitive")
         return False
 
@@ -745,15 +799,16 @@ class HawkTestDriver:
         Returns:
             boolean: True if successful or False if failed
         '''
-        if self.find_element(By.XPATH, Xpath.RSC_ROWS):
-            print("TEST: test_delete_primitive: Delete the dummy_primitive")
-            resource_number_from_top = 2 # 1. cool_primitive, 2. dummy_primitive, 3. fencing-sbd|stonith-sbd
+        print("TEST: test_delete_primitive: Delete the dummy_primitive")
+        resource_number_from_top = 2 # 1. cool_primitive, 2. dummy_primitive, 3. fencing-sbd|stonith-sbd
 
+        if self.find_element(By.XPATH, Xpath.RSC_ROWS, 10) or self.find_element(By.XPATH, Xpath.RSC_ROWS_NEW):
             # First, click on edit
             time.sleep(2)
             self.check_and_click_by_xpath(Error.DUMMY_PRIMITIVE_ERR, [
                                                 Xpath.DROP_DOWN_FORMAT.format(resource_number_from_top),
                                                 Xpath.DUMMY_PRIMITIVE_EDIT])
+
 
             # Second, click on Delete
             time.sleep(2) # wait the redirect finishes
@@ -773,6 +828,7 @@ class HawkTestDriver:
             if self.verify_success():
                 print("INFO: dummy_primitive was successfully deleted")
                 return True
+
         print("ERROR: failed to delete dummy_primitive")
         return False
 
@@ -1095,7 +1151,7 @@ class HawkTestDriver:
         self.check_and_click_by_xpath("Could not fence first node",
                                       [Xpath.COMMIT_BTN_DANGER])
         if self.verify_success():
-            print("INFO: Master node successfully fenced")
+            print("INFO: First node successfully fenced")
             return True
-        print("ERROR: Could not fence master node")
+        print("ERROR: Could not fence first node")
         return False
