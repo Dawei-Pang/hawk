@@ -77,7 +77,7 @@ class HawkTestSSH:
                 False when fencing-sbd|stonith-sbd is not unmanaged nor in maintenance
         '''
         print("TEST: verify_fencing_in_maintenance")
-        out = self.get_cluster_conf_ssh_output("crm status | grep 'fencing-sbd\|stonith-sbd'")
+        out = self.get_cluster_conf_ssh_output("crm status | grep -E 'fencing-sbd|stonith-sbd'")
         if any(_ in out for _ in ('unmanaged', 'maintenance')):
             print("INFO: fencing-sbd|stonith-sbd is unmanaged/maintenance")
             self.set_test_status(results, 'verify_fencing_in_maintenance', 'passed')
