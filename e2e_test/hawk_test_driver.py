@@ -74,7 +74,7 @@ class Xpath:
     OPERATIONS = '//*[@id="nodes"]//table/tbody/tr[1]/td[5]/div/div/button'
     OPT_FENCING = '//option[contains(@value, "fencing-sbd") or contains(@value, "stonith-sbd")]'
     RESOURCES_TYPES = '//a[contains(@href, "resources/types")]'
-    RSC_OK_SUBMIT = '//input[contains(@class, "submit")]'
+    RSC_OK_SUBMIT = '//*[@name="submit"]'
     RSC_ROWS = '//*[@id="resources"]/div[1]/div[2]/div[2]/table/tbody/tr'
     RSC_ROWS_NEW = '//*[@id="resources"]/table/tbody/tr'
     FENCING_CHKBOX = '//input[contains(@type, "checkbox") and (contains(@value, "fencing-sbd") or contains(@value, "stonith-sbd"))]'
@@ -911,9 +911,57 @@ class HawkTestDriver:
             print("ERROR: Couldn't find element [clone[id]]. No text-field where to type clone id")
             return False
         elem.send_keys(clone)
-        self.check_and_click_by_xpath(f"while adding clone [{clone}]",
-                                      [Xpath.CLONE_CHILD, Xpath.OPT_FENCING, Xpath.TARGET_ROLE_FORMAT.format('clone'),
-                                       Xpath.TARGET_ROLE_STARTED, Xpath.RSC_OK_SUBMIT])
+
+        elem = self.find_element(By.XPATH, Xpath.CLONE_CHILD, 10)
+        if elem: # --> old ruby hawk
+            elem.click()
+            self.check_and_click_by_xpath(f"while adding clone [{clone}]",
+                                            [Xpath.OPT_FENCING, Xpath.TARGET_ROLE_FORMAT.format('clone'),
+                                            Xpath.TARGET_ROLE_STARTED])
+
+        else: # --> new go hawk
+            selections = (
+                ('x-select[id="child-resource-xselect"]',
+                 'select[name="clone[child]"]',
+                 'option[value*="fencing-sbd"], option[value*="stonith-sbd"]',
+                 '<x-select id="child-resource-xselect">',
+                 "'fencing-sbd' option"),
+                ('x-kvgroup[id="kvgroup-meta_attributes"]',
+                 'select[name="clone[meta][target-role]"]',
+                 'option[value*="topped"]',
+                 "<x-kvgroup id='kvgroup-meta_attributes'>",
+                 'Stop option'),
+            )
+
+            for host_selector, select_selector, option_selector, host_name, option_name in selections:
+                host = self.find_element(By.CSS_SELECTOR, host_selector)
+                if not host:
+                    print(f"ERROR: Couldn't find {host_name}")
+                    self.test_status = False
+                    return False
+
+                select = host.shadow_root.find_element(By.CSS_SELECTOR, select_selector)
+                if not select:
+                    print(f"ERROR: Couldn't find {option_name}")
+                    self.test_status = False
+                    return False
+                select.click()
+
+                option = select.find_element(By.CSS_SELECTOR, option_selector)
+                if not option:
+                    print(f"ERROR: Couldn't find {option_name}")
+                    self.test_status = False
+                    return False
+                option.click()
+
+        elem = self.find_element(By.XPATH, Xpath.RSC_OK_SUBMIT)
+        if not elem:
+            print(f"ERROR: Couldn't find element by xpath [{Xpath.RSC_OK_SUBMIT}] while adding clone")
+            self.test_status = False
+            return
+        elem.click()
+
+        time.sleep(7)
         if self.verify_success():
             print(f"INFO: Successfully added clone [{clone}] of [fencing-sbd|stonith-sbd]")
             return True
