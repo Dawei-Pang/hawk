@@ -39,4 +39,4 @@ ENV	DBUS_SESSION_BUS_ADDRESS=/dev/null
 WORKDIR	/test
 
 USER	test
-ENTRYPOINT ["/usr/bin/python3", "/hawk_test.py"]
+ENTRYPOINT ["/usr/bin/python3.13", "/hawk_test.py"]
