@@ -65,7 +65,7 @@ class Xpath:
     HREF_REPORTS = '//a[contains(@href, "/reports")]'
     HREF_TAGS = '//a[contains(@href, "#tags")]'
     MODAL_MONITOR_TIMEOUT = '//*[@id="modal"]/div/div/form/div[2]/fieldset/div/div[1]/div'
-    MODAL_STOP = '//*[@id="modal"]/div/div/form/div[2]/fieldset/div/div[2]/div/div/select/option[6]'
+    MODAL_STOP = '//*[@id="modal"]/div/div/form/div[2]/fieldset/div//div/div/select[@name="temp_op"]/option[6]'
     MODAL_TIMEOUT = '//*[@id="modal"]/div/div/form/div[2]/fieldset/div/div[1]/div/div'
     NODE_DETAILS = '//*[@id="nodes"]//table/tbody/tr[1]/td[5]/div/a[2]'
     NODE_MAINT = '//a[(contains(@href, "maintenance") or contains(@class, "maintenance")) and contains(@title, "Switch to maintenance")]'
