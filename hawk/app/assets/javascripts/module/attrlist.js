@@ -14,6 +14,18 @@
     this.mapping = this.$el.data('attrlist-mapping');
     this.freeform = this.$el.data('attrlist-freeform') == 'yes';
 
+    // existing is an array of allowed parameters
+    var existing = this.values instanceof Array
+      ? this.values[0] // for multi-monitor in m/s resource
+      : this.values;   // for the normal case
+    var mapping = this.mapping;
+    // if there is some custom/non-existing parameter --> show it anyway
+    $.each(Object.keys(existing), function(index, key) {
+      if (!(key in mapping)) {
+        mapping[key] = { default: '', longdesc: '' };
+      }
+    });
+
     this.available = Object.keys(this.mapping).filter(function(attr) {
       return !attr.match(/jQuery\d+/);
      });
