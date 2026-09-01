@@ -819,6 +819,7 @@ class HawkTestDriver:
             delete_btn.click()
 
             # Third, confirm deleting
+            time.sleep(2) # wait the redirect finishes
             commit_btn = self.find_element(By.CLASS_NAME, "commit")
             if not commit_btn:
                 print("ERROR: Couldn't find OK-Commit button")
