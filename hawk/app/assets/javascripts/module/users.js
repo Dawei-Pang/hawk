@@ -126,7 +126,7 @@ $(function() {
         enableFiltering: true,
         buttonWidth: '100%',
         onChange: function(element, checked) {
-          $(element.context.form)
+          element.closest('form')
             .find('[name="revert"]')
               .show()
               .end()

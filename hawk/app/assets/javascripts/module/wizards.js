@@ -92,7 +92,7 @@ $(function() {
         content.html('<pre>' + $('<div/>').text(data.output).html() + '</pre>');
       });
     }
-    vform.find(".submit").addClass("disabled").bind("click", false);
+    vform.find(".submit").addClass("disabled").on("click", false);
     vform.find(".actions .list-group-item").removeClass("disabled").addClass("list-group-item-success");
     vform.find(".notifications").html('<div class="alert alert-success">' + __("Changes applied successfully.") + '</div>');
   });
