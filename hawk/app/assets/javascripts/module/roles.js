@@ -181,7 +181,7 @@ $(function() {
       $(e.currentTarget)
         .closest('fieldset')
         .siblings()
-        .andSelf()
+        .andBack()
         .each(function(index, current) {
           $(current)
             .find('.form-control')
