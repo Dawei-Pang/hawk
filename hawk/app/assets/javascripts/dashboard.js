@@ -4,6 +4,10 @@
 // See COPYING for license.
 
 $( document ).ready(function() {
+  $(document).on("ajax:complete", ".remove-cluster", function() {
+    location.reload();
+  });
+
   $(".status-wrapper").find(".status-table").each(function(index, element) { // jshint ignore:line
     var id = $(this).attr("id");
     var data = $(this).data("cluster");

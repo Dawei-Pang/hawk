@@ -5,7 +5,7 @@ $(function() {
   var constraintResources = function(row) {
     var flattenResourceList = null;
     flattenResourceList = function(obj) {
-      var t = $.type(obj);
+      var t = Array.isArray(obj) ? "array" : (obj === null ? "null" : typeof obj);
       var ret = [];
       if (t === "string") {
         ret.push(obj);

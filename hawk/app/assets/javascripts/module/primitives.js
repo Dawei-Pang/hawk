@@ -190,7 +190,7 @@ $(function() {
       }
 
       var format_longdesc = function(text) {
-        var longdesc = $.map(text.split('\n\n'), function(v) { return $.trim(v); });
+        var longdesc = $.map(text.split('\n\n'), function(v) { return v.trim(); });
         var ret = [];
         $.each(longdesc, function(i, v) {
           if (v) {
@@ -227,9 +227,9 @@ $(function() {
 
             var lookup = function(root, lstname, elemname) {
               if (lstname in root) {
-                if ($.type(root[lstname]) == "object") {
+                if (root[lstname] !== null && typeof root[lstname] == "object" && !Array.isArray(root[lstname])) {
                   if (elemname in root[lstname]) {
-                    if ($.type(root[lstname][elemname]) == "object") {
+                    if (root[lstname][elemname] !== null && typeof root[lstname][elemname] == "object" && !Array.isArray(root[lstname][elemname])) {
                       return [root[lstname][elemname]];
                     } else {
                       return root[lstname][elemname];
@@ -248,9 +248,9 @@ $(function() {
             $.each(lookup(data.resource_agent, "parameters", "parameter"), function(i, v) {
               var name = v.name;
               var longdesc = "";
-              if ($.trim(v.longdesc)) {
+              if (String(v.longdesc || '').trim()) {
                 longdesc = v.longdesc;
-              } else if ($.trim(v.shortdesc)) {
+              } else if (String(v.shortdesc || '').trim()) {
                 longdesc = v.shortdesc;
               }
               var type = "string";
