@@ -15,7 +15,7 @@ $(function() {
           return $(element).html() + ' [' + $(element).val() + ']';
         },
         onChange: function(element) {
-          $(element.context.form)
+          element.closest('form')
             .find('[name="revert"]')
               .show()
               .end()

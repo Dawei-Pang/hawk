@@ -2,6 +2,7 @@
 // See COPYING for license.
 
 //= require jquery/jquery
+//= require jquery/compatibility
 //= require jquery/rails
 //= require jquery/validate
 //= require jquery/matchheight

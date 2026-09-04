@@ -232,8 +232,8 @@
 
     var tgtnode = self.$el.find(self.targets);
     tgtnode.html([
-      '<div class="oplist-items"/>',
-      '<div class="oplist-adder"/>'
+      '<div class="oplist-items"></div>',
+      '<div class="oplist-adder"></div>'
     ].join(""));
     var itemhook = tgtnode.find('.oplist-items');
     var addhook = tgtnode.find('.oplist-adder');

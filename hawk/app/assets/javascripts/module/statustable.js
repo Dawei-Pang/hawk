@@ -341,7 +341,7 @@ var statusTable = {
                 });
 
                 that.inner_section.find(".search input").keyup(function(){
-                  var val = $.trim( this.value ).toUpperCase();
+                  var val = this.value.trim().toUpperCase();
                   that.set_search_state(val);
                   that.displayClusterStatus();
                 });

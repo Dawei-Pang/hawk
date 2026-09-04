@@ -151,8 +151,8 @@
 
     var tgtnode = self.$el.find(self.targets);
     tgtnode.html([
-      '<div class="recipientlist-items"/>',
-      '<div class="recipientlist-adder"/>'
+      '<div class="recipientlist-items"></div>',
+      '<div class="recipientlist-adder"></div>'
     ].join(""));
     var itemhook = tgtnode.find('.recipientlist-items');
     var addhook = tgtnode.find('.recipientlist-adder');
