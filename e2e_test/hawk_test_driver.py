@@ -294,7 +294,7 @@ class HawkTestDriver:
         Function to check and edit configuration
         '''
         print("INFO: Check edit configuration")
-        time.sleep(1)
+        time.sleep(20)
         if Version(self.test_version) >= Version("15"):
             self.check_and_click_by_xpath("Couldn't find Configuration element", [Xpath.HREF_CONFIGURATION])
         time.sleep(1)
