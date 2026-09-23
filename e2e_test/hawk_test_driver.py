@@ -672,6 +672,7 @@ class HawkTestDriver:
 
         time.sleep(BIG_TIMEOUT)
         if self.find_element(By.XPATH, Xpath.RSC_ROWS, 20):
+            print("By.LINK_TEXT Copy")
             # First, click on Edit
             time.sleep(2)
             self.check_and_click_by_xpath(Error.COOL_PRIMITIVE_ERR, [Xpath.DROP_DOWN_FORMAT.format(resource_number_from_top),
@@ -679,9 +680,10 @@ class HawkTestDriver:
 
             # Second, copy the cool_primitive into dum_primitive
             time.sleep(2) # to redirect
-            copy_btn = self.find_element(By.LINK_TEXT, "Copy") # search for '<a>Copy</a>' (Ruby hawk),
+            copy_btn = self.find_element(By.NAME, "copy") # search for '<a>Copy</a>' (Ruby hawk),
 
         elif self.find_element(By.XPATH, Xpath.RSC_ROWS_NEW):
+            print("By.NAME copy")
             # First, click on Edit
             time.sleep(2)
             self.check_and_click_by_xpath(Error.COOL_PRIMITIVE_ERR, [Xpath.DROP_DOWN_FORMAT_NEW.format(resource_number_from_top),
@@ -693,6 +695,7 @@ class HawkTestDriver:
         else:
             print("ERROR: failed to copy cool_primitive into dum_primitive")
             return False
+
 
         if not copy_btn:
             print("ERROR: Couldn't find Copy button")
@@ -740,14 +743,14 @@ class HawkTestDriver:
             # Third, rename the cool_primitive to dum_primitive
             time.sleep(BIG_TIMEOUT) # wait the redirect finishes
             # search for '<a>Rename</a>' (Ruby hawk),
-            rename_btn = self.find_element(By.LINK_TEXT, "Rename")
+            rename_btn = self.find_element(By.NAME, "rename")
             if not rename_btn:
                 print("ERROR: Couldn't find Rename button")
                 return False
             rename_btn.click()
 
             # search for '<input id="to">' (Ruby hawk),
-            input_elem = self.find_element(By.ID, "to")
+            input_elem = self.find_element(By.NAME, "renamePopupInputTo")
 
         elif self.find_element(By.XPATH, Xpath.RSC_ROWS_NEW):
             # First, stop the cool_primitive
